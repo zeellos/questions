@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import datetime 
 
 # setting initial parameters
 FEATURE_NUMBER = 800
@@ -10,10 +11,10 @@ CSV_COLUMN.append(LABEL_COLUMN)
 CSV_COLUMN_DEFAULTS = [[0.0] for i in range(0,FEATURE_NUMBER)]
 CSV_COLUMN_DEFAULTS.append([0])
 UNUSED_COLUMNS = set()
-train_path = 'training.csv'
-test_path = 'testing.csv'
-test_path_labels = 'testing_label_only.csv'
-model_dir = 'output'
+train_path = 'E:/Ronald/Databases/Database_CKut/OCT/AlinesForBEAE_training_v2.csv'
+test_path = 'E:/Ronald/Databases/Database_CKut/OCT/AlinesForBEAE_testing_v2.csv'
+test_path_labels = 'E:\\Ronald\\Temp\\outputs\\' + 'model_10000' + datetime.datetime.now().strftime("%Y%m%d%H%M%S") + 'train_and_eval'
+model_dir = 'E:\Ronald\Temp\outputs\output_3layer_newInputFunction'
 
 def parse_csv(rows_string_tensor):
     row_columns = tf.expand_dims(rows_string_tensor, -1)
@@ -48,10 +49,10 @@ def input_fn_train(filenames,
 
 def main(argv):
     batch_size = 100
-    train_steps = 10000
+    train_steps = 1000000
     eval_steps = 10
     num_epochs = 1
-
+    throttle_secs = 600
     my_feature_columns = []
     for key in FEATURE_NAMES:
         my_feature_columns.append(tf.feature_column.numeric_column(key=key))
@@ -68,7 +69,7 @@ def main(argv):
     train_spec = tf.estimator.TrainSpec(train_input,max_steps=train_steps)
 
     eval_input = lambda: input_fn_train([test_path],num_epochs=num_epochs,shuffle=False,skip_header_lines=0)
-    eval_spec = tf.estimator.EvalSpec(eval_input,steps=eval_steps,throttle_secs=100)
+    eval_spec = tf.estimator.EvalSpec(eval_input,steps=eval_steps,throttle_secs=throttle_secs)
 
     tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
